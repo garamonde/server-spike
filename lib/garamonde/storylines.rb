@@ -15,9 +15,18 @@ class Garamonde::Storylines
   end
 
   def lookup(keyw = {})
-    session = keyw[:session]
+    id = keyw[:id]
 
-    yield @storylines[session.user.email]
+    yield @storylines.values.detect{|sl| sl.id == id }
+  end
+
+  def add_updates(keyw = {})
+    id = keyw[:id]
+    updates = keyw[:updates]
+    
+    lookup(id: id) do |storyline|
+      storyline.updates += updates
+    end
   end
 
   private

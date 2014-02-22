@@ -40,6 +40,25 @@ class Garamonde::Users
     end
   end
 
+  class Admins < self
+
+    def authenticate(keyw = {})
+      token = keyw[:token]
+
+      if token == "sekrit-admin-token"
+        yield OpenStruct.new(
+          status: "authenticated",
+          successful?: true
+        )
+      else
+        yield OpenStruct.new(
+          status: "invalid token"
+        )
+      end
+    end
+
+  end
+
   private
 
   def existing_user(email)

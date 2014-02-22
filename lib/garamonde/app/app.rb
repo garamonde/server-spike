@@ -13,6 +13,10 @@ class Garamonde::App < Sinatra::Base
     $users ||= Garamonde::Users.new
   end
 
+  def admins
+    $admins ||= Garamonde::Users::Admins.new
+  end
+
   def storylines
     $storylines ||= Garamonde::Storylines.new
   end
@@ -82,8 +86,8 @@ class Garamonde::App < Sinatra::Base
     url elements.join("/")
   end
 
-  def authenticate(&blk)
-    users.authenticate(token: params[:token]) do |session|
+  def authenticate(what = users, &blk)
+    what.authenticate(token: params[:token]) do |session|
       if session.successful?
         yield session
       else
@@ -141,6 +145,13 @@ class Garamonde::App < Sinatra::Base
           }
         }.to_json
       end
+    end
+  end
+
+  post '/storylines/:id/updates' do
+    authenticate(admins) do |session|
+      storylines.add_updates(id: params[:id], updates: params[:updates])
+      { status: "updates added" }.to_json
     end
   end
 

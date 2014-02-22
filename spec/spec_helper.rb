@@ -55,4 +55,8 @@ module RackHelpers
     delete "/users/sessions/#{code}"
   end
 
+  def admin_token
+    "sekrit-admin-token"
+  end
+
 end
