@@ -13,6 +13,10 @@ class Garamonde::App < Sinatra::Base
     $users ||= Garamonde::Users.new
   end
 
+  def storylines
+    $storylines ||= Garamonde::Storylines.new
+  end
+
   post '/users' do
     user = users.register(
       email: params[:user][:email]
@@ -69,42 +73,75 @@ class Garamonde::App < Sinatra::Base
 
   ## Storylines
 
-  post '/storylines' do
-    {
-      links: {
-        this: "/storylines/123",
-        updates: "/storylines/123/updates"
-      },
-      storyline: {
+  def resource(type, resource, *additional)
+    elements  = [
+      "/#{type}s",
+      resource.id,
+    ] + additional
 
-      }
-    }.to_json
+    url elements.join("/")
+  end
+
+  def authenticate(&blk)
+    users.authenticate(token: params[:token]) do |session|
+      if session.successful?
+        yield session
+      else
+        status 403
+        {
+          status: session.status
+        }.to_json
+      end
+    end
+  end
+
+  post '/storylines' do
+    authenticate do |session|
+      storylines.start(session: session) do |storyline|
+        {
+          status: storyline.status,
+          links: {
+            this: resource(:storyline, storyline),
+            updates: resource(:storyline, storyline, :updates) 
+          },
+          storyline: {
+
+          }
+        }.to_json
+      end
+    end
   end
 
   get '/storylines/:id' do
-    {
-      links: {
-        this: "/storylines/123",
-        updates: "/storylines/123/updates"
-      },
-      storyline: {
-      
-      }
-    }.to_json
+    authenticate do |session|
+      storylines.lookup(session: session, id: params[:id]) do |storyline|
+        {
+          links: {
+            this: resource(:storyline, storyline),
+            updates: resource(:storyline, storyline, :updates)
+          },
+          storyline: {
+          
+          }
+        }.to_json
+      end
+    end
   end
 
   get '/storylines/:id/updates' do
-    {
-      links: {
-        this: "/storylines/123",
-        updates: "/storylines/123/updates"
-      },
-      storyline: {
-        updates: [
-
-        ]
-      }
-    }.to_json
+    authenticate do |session|
+      storylines.lookup(session: session, id: params[:id]) do |storyline|
+        {
+          links: {
+            this: resource(:storyline, storyline),
+            updates: resource(:storyline, storyline, :updates)
+          },
+          storyline: {
+            updates: storyline.updates
+          }
+        }.to_json
+      end
+    end
   end
 
 end

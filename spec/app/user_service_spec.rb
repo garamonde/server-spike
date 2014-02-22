@@ -5,6 +5,8 @@ require 'garamonde/app/app'
 describe Garamonde::App do
   include RackHelpers
 
+  before { $users = nil }
+
   it "should have a root path" do
     get "/"
     expect(last_response).to be_ok

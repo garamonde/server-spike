@@ -23,6 +23,23 @@ class Garamonde::Users
     end_session(auth_code)
   end
 
+  def authenticate(keyw = {})
+    token = keyw[:token]
+
+    user = lookup_session token
+    if user
+      yield OpenStruct.new(
+        status: "authenticated",
+        user: user,
+        successful?: true
+      )
+    else
+      yield OpenStruct.new(
+        status: "invalid token"
+      )
+    end
+  end
+
   private
 
   def existing_user(email)
@@ -63,7 +80,7 @@ class Garamonde::Users
   end
 
   def end_session(token)
-    user = @users.values.detect{|u| u.sessions.include? token }
+    user = lookup_session token 
     
     if user
       user.sessions.delete token
@@ -82,6 +99,10 @@ class Garamonde::Users
     new_auth_code.tap do |code|
       user.sessions << code
     end
+  end
+
+  def lookup_session(token)
+    @users.values.detect{|u| u.sessions.include? token }
   end
 
 end
