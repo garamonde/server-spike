@@ -20,6 +20,12 @@ class Garamonde::Storylines
     yield @storylines.values.detect{|sl| sl.id == id }
   end
 
+  def each(keyw = {})
+    session = keyw[:session]
+
+    yield @storylines[session.user.email]
+  end
+
   def add_updates(keyw = {})
     id = keyw[:id]
     updates = keyw[:updates]

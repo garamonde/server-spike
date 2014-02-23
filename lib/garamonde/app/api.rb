@@ -100,20 +100,36 @@ class Garamonde::API < Sinatra::Base
     end
   end
 
+  def storyline_json(storyline)
+    {
+      status: storyline.status,
+      links: {
+        this: resource(:storyline, storyline),
+        updates: resource(:storyline, storyline, :updates) 
+      },
+      storyline: {
+        id: storyline.id
+      }
+    }
+  end
+
   post '/storylines' do
     authenticate do |session|
       storylines.start(session: session) do |storyline|
-        {
-          status: storyline.status,
-          links: {
-            this: resource(:storyline, storyline),
-            updates: resource(:storyline, storyline, :updates) 
-          },
-          storyline: {
-
-          }
-        }.to_json
+        storyline_json(storyline).to_json
       end
+    end
+  end
+
+  get '/storylines' do
+    authenticate do |session|
+      storyline_entries = []
+      storylines.each(session: session) do |storyline|
+        storyline_entries << storyline_json(storyline)
+      end
+      {
+        storylines: storyline_entries
+      }.to_json
     end
   end
 
