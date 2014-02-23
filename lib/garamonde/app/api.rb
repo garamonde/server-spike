@@ -1,7 +1,8 @@
 require 'garamonde'
 require 'sinatra/base'
+require 'json'
 
-class Garamonde::App < Sinatra::Base
+class Garamonde::API < Sinatra::Base
 
   get '/' do
     'Hi'

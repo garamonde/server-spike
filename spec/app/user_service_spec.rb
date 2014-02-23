@@ -1,8 +1,8 @@
 require_relative '../spec_helper'
 
-require 'garamonde/app/app'
+require 'garamonde/app/api'
 
-describe Garamonde::App do
+describe Garamonde::API do
   include RackHelpers
 
   before { $users = nil }

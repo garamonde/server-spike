@@ -40,7 +40,7 @@ end
 module RackHelpers
 
   def app
-    Garamonde::App
+    Garamonde::API
   end
 
   def register(user)
